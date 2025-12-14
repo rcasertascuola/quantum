@@ -51,27 +51,30 @@ class NotebookGenerator:
 
 nb = NotebookGenerator()
 
-# --- Parte 1: Intro e Fondamentali ---
+# --- INTRODUZIONE ---
 
-nb.add_markdown("""# Benvenuti nel Mondo Quantistico! 🌌
+nb.add_markdown("""# 🌌 Viaggio al Centro del Qubit: Una Lezione Interattiva
 
-Ciao! Sei pronto a scoprire come funziona l'informatica del futuro?
-Oggi non useremo i soliti bit (0 e 1) che conosci. Entreremo nel mondo dei **Qubit**, dove le regole della logica classica vengono stravolte.
+Benvenuto! Se sei qui, significa che sei pronto a mettere in discussione tutto ciò che sai sui computer.
+Nei computer classici (quello che stai usando ora), tutto è certezza: un bit è 0 oppure 1. Bianco o nero. Acceso o spento.
 
-In questa lezione imparerai:
-1.  Cosa rende "strano" e potente un computer quantistico.
-2.  Come usare le **Porte Quantistiche** per manipolare l'informazione.
-3.  Concetti chiave come **Sovrapposizione** e **Entanglement** (non preoccuparti se sembrano paroloni, li renderemo semplicissimi!).
+Nel **Quantum Computing**, entriamo in un regno di sfumature, probabilità e connessioni invisibili.
+Questa non è solo una lezione di informatica, è una lezione di filosofia naturale applicata.
 
-Useremo **Qiskit**, il framework di IBM, per simulare i nostri esperimenti direttamente qui su Google Colab.
+**Obiettivi di oggi:**
+1.  Capire visivamente i Qubit (non useremo formule complicate!).
+2.  Sperimentare le "Porte Quantistiche" e vedere come ruotano la realtà.
+3.  Toccare con mano i fenomeni "assurdi": Sovrapposizione, Interferenza ed Entanglement.
 
-### 🚀 Preparazione dell'Ambiente
-Per prima cosa, installiamo gli strumenti necessari. Esegui la cella qui sotto.
+---
+### 🛠️ 0. Preparazione del Laboratorio
+
+Prima di iniziare, dobbiamo assemblare il nostro banco di lavoro digitale. Useremo **Qiskit**, il software di IBM per programmare computer quantistici reali.
 """)
 
 nb.add_code("""!pip install qiskit[visualization] qiskit-aer pylatexenc matplotlib""")
 
-nb.add_markdown("""Ora importiamo le librerie che ci serviranno. Non preoccuparti di capire tutto il codice ora, ci torneremo man mano.""")
+nb.add_markdown("""Importiamo gli strumenti. Immagina queste librerie come il tuo set di cacciaviti, oscilloscopi e generatori di particelle.""")
 
 nb.add_code("""from qiskit import QuantumCircuit, transpile
 from qiskit_aer import AerSimulator, StatevectorSimulator
@@ -79,342 +82,324 @@ from qiskit.visualization import plot_histogram, plot_bloch_multivector
 import matplotlib.pyplot as plt
 import numpy as np
 
-# Impostiamo i simulatori
-sim_statevector = StatevectorSimulator() # Per vedere lo stato del qubit (la sfera)
-sim_counts = AerSimulator()       # Per simulare le misure (i grafici a barre)
+# Questo simulatore ci permette di vedere il qubit come una sfera (ideale per imparare)
+sim_statevector = StatevectorSimulator()
 
-print("Tutto pronto! Possiamo iniziare.")""")
+# Questo simulatore replica un vero esperimento con misure ripetute (ideale per vedere le probabilità)
+sim_counts = AerSimulator()
+
+print("✅ Laboratorio Quantistico Attivato!")""")
+
+# --- PARTE 1: IL QUBIT ---
 
 nb.add_markdown("""---
-## 1. Il Qubit: Più di un semplice interruttore
+## 1. Il Qubit e la Sfera di Bloch
 
-Immagina un bit classico come un interruttore della luce: può essere solo **ACCESO** (che chiamiamo 1) o **SPENTO** (che chiamiamo 0).
+Dimentica per un attimo gli 0 e gli 1 digitali. Pensa alla Terra.
+*   Il **Polo Nord** rappresenta lo stato **0** (o $|0\\rangle$).
+*   Il **Polo Sud** rappresenta lo stato **1** (o $|1\\rangle$).
 
-Un **Qubit** (Quantum Bit) è molto più interessante. Immaginalo come una **sfera**.
-*   Il Polo Nord della sfera rappresenta lo **0** (lo scriviamo come $|0\\rangle$).
-*   Il Polo Sud della sfera rappresenta l'**1** (lo scriviamo come $|1\\rangle$).
+Un bit classico può essere solo al Polo Nord o al Polo Sud.
+Un **Qubit**, invece, può essere un punto qualsiasi sulla superficie della Terra! Può essere all'equatore, in Italia, in Australia...
 
-La cosa magica? Un Qubit può puntare in **qualsiasi direzione** sulla sfera, non solo al Nord o al Sud! Questa sfera si chiama **Sfera di Bloch**.
+Questa rappresentazione si chiama **Sfera di Bloch**.
 
-### La Notazione di Dirac (Bra-ket)
-Quei simboli strani $|0\\rangle$ e $|1\\rangle$ si chiamano **ket**. È solo un modo elegante che i fisici usano per dire "vettore di stato".
-*   $|0\\rangle = \\begin{pmatrix} 1 \\\\ 0 \\end{pmatrix}$
-*   $|1\\rangle = \\begin{pmatrix} 0 \\\\ 1 \\end{pmatrix}$
-
-Non faremo calcoli con queste matrici oggi, ma è utile sapere che esistono!
-
-Proviamo a creare il nostro primo circuito quantistico con 1 Qubit. Di default, i qubit partono sempre da $|0\\rangle$ (Polo Nord).
+### 👀 Guardiamo un Qubit "appena nato"
+Di default, quando creiamo un Qubit, questo nasce nello stato $|0\\rangle$ (Polo Nord). Verifichiamolo.
 """)
 
-nb.add_code("""# Creiamo un circuito con 1 qubit e 1 bit classico (per misurare il risultato)
-qc = QuantumCircuit(1, 1)
+nb.add_code("""# Creiamo un circuito con 1 qubit
+qc_base = QuantumCircuit(1)
 
-# Disegniamo il circuito
-qc.draw('mpl')""")
+# Eseguiamo la simulazione per vedere lo stato
+job = sim_statevector.run(qc_base)
+state = job.result().get_statevector()
 
-nb.add_markdown("""Vediamo dove si trova il nostro qubit sulla sfera. Dovrebbe essere al Polo Nord ($|0\\rangle$).""")
-
-nb.add_code("""# Eseguiamo il circuito sul simulatore di stato
-job = sim_statevector.run(qc)
-result = job.result()
-state = result.get_statevector()
-
-# Visualizziamo la sfera di Bloch
+# Visualizziamo!
 plot_bloch_multivector(state)""")
 
-nb.add_markdown("""Come vedi, la freccia punta in alto. È un perfetto $|0\\rangle$.
+nb.add_markdown("""La freccia blu punta dritta in alto. Questo è lo stato fondamentale. È "sicuramente 0".
 
 ---
-## 2. La Porta X: Il "NON" Quantistico
+## 2. La Porta X: Il salto mortale
 
-Nei computer classici, la porta **NOT** inverte il valore del bit:
-*   0 $\\rightarrow$ 1
-*   1 $\\rightarrow$ 0
+La prima porta che incontriamo è la **Pauli-X**.
+Nel mondo classico, la chiamiamo porta **NOT**. Se entra 0, esce 1.
 
-Nel mondo quantistico, l'equivalente è la **Porta Pauli-X** (o semplicemente **X**).
-Cosa fa geometricamente? Ruota la sfera di 180 gradi ($\\pi$ radianti) attorno all'asse X.
+Nel mondo quantistico, la porta X è una **rotazione di 180 gradi** attorno all'asse X.
+Immagina di prendere la sfera e capovolgerla.
 
-Se partiamo dal Polo Nord ($|0\\rangle$) e ruotiamo di 180 gradi, dove finiamo? Esatto, al Polo Sud ($|1\\rangle$)!
-
-Proviamolo.
+❓ **DOMANDA PRELIMINARE:**
+Se partiamo dal Polo Nord ($|0\\rangle$) e ruotiamo di 180 gradi, dove finiremo?
+*(Pensaci un attimo prima di scorrere)*
 """)
 
-nb.add_code("""qc_x = QuantumCircuit(1, 1)
-
-# Applichiamo la porta X
-qc_x.x(0)
-
+nb.add_code("""qc_x = QuantumCircuit(1)
+qc_x.x(0)  # Applichiamo la porta X
 qc_x.draw('mpl')""")
 
-nb.add_markdown("""Ora guardiamo la sfera:""")
+nb.add_markdown("""Ora vediamo il risultato sulla sfera.""")
 
-nb.add_code("""# Visualizziamo lo stato dopo la porta X
-job = sim_statevector.run(qc_x)
-state = job.result().get_statevector()
-plot_bloch_multivector(state)""")
+nb.add_code("""state_x = sim_statevector.run(qc_x).result().get_statevector()
+plot_bloch_multivector(state_x)""")
 
-nb.add_markdown("""La freccia punta in basso ($|1\\rangle$). Niente di troppo strano finora, vero? È come un computer classico.
+nb.add_markdown("""Esattamente al Polo Sud ($|1\\rangle$).
 
-Ma ora... preparati alla vera magia. ✨
+### 🧠 Riflessione: Doppia Negazione
+Cosa succede se applichiamo **due** porte X di fila?
+Classicamente: `NOT(NOT(0)) = 0`.
+Quantisticamente: Una rotazione di 180° + un'altra rotazione di 180° = 360° (Giro completo).
 
----
-## 3. La Porta H (Hadamard): Benvenuti nella Sovrapposizione
-
-Questa è la porta più importante e famosa. La porta **Hadamard (H)**.
-
-Se applichiamo una porta H a uno stato $|0\\rangle$, il qubit non va a 1. E non resta a 0.
-Va all'**equatore** della sfera!
-
-In questo stato, il qubit è in **Sovrapposizione**.
-$$ H|0\\rangle = |+\\rangle = \\frac{|0\\rangle + |1\\rangle}{\\sqrt{2}} $$
-
-Cosa significa? Significa che il qubit è, in un certo senso, **sia 0 che 1 contemporaneamente**.
-È come una moneta che gira vorticosamente sul tavolo. Non è né testa né croce, è in uno stato intermedio.
-
-Vediamolo sulla sfera.
+Proviamo!
 """)
 
-nb.add_code("""qc_h = QuantumCircuit(1, 1)
+nb.add_code("""qc_xx = QuantumCircuit(1)
+qc_xx.x(0)
+qc_xx.x(0)
+plot_bloch_multivector(sim_statevector.run(qc_xx).result().get_statevector())""")
 
-# Applichiamo la porta H
+nb.add_markdown("""Siamo tornati al punto di partenza. In questo caso, l'intuizione classica e quella quantistica coincidono. Ma non durerà a lungo... 😉
+
+---
+## 3. La Porta H: Entriamo nella "Bizzarria"
+
+Ecco la porta **Hadamard (H)**. È la porta che crea la magia.
+Invece di ruotare di 180° (come la X), la porta H fa una rotazione particolare che porta il Polo Nord... all'**Equatore**!
+
+Precisamente, punta verso l'asse X positivo (fronte a noi). Questo stato si chiama $|+\\rangle$.
+
+$$ H|0\\rangle = |+\\rangle $$
+
+Costruiamo il circuito.
+""")
+
+nb.add_code("""qc_h = QuantumCircuit(1)
 qc_h.h(0)
-
 qc_h.draw('mpl')""")
 
-nb.add_code("""# Visualizziamo lo stato di sovrapposizione
-job = sim_statevector.run(qc_h)
-state = job.result().get_statevector()
-plot_bloch_multivector(state)""")
+nb.add_markdown("""Visualizziamo la sfera.""")
 
-nb.add_markdown("""Vedi? La freccia punta lungo l'asse X positivo. Questo stato si chiama $|+\\rangle$.
+nb.add_code("""state_h = sim_statevector.run(qc_h).result().get_statevector()
+plot_bloch_multivector(state_h)""")
 
-### Dio gioca a dadi? 🎲
-Ora arriva la parte sconvolgente. Cosa succede se chiediamo al qubit: "Sei 0 o sei 1?" (cioè se facciamo una **Misura**).
+nb.add_markdown("""### 🛑 STOP & THINK: Cosa significa?
+La freccia non è né su (0) né giù (1). È a metà strada.
+In Fisica Quantistica, diciamo che il Qubit è in **Sovrapposizione**.
 
-Quando misuriamo, costringiamo la Natura a scegliere. La "moneta quantistica" smette di girare e cade.
-*   Con il 50% di probabilità otterremo 0.
-*   Con il 50% di probabilità otterremo 1.
+È come una moneta che sta ruotando sul tavolo. Finché ruota, è sia testa che croce.
 
-Il risultato è **puramente casuale**. Non è che non sappiamo il risultato perché ci mancano informazioni; è la natura stessa a essere probabilistica. Einstein odiava questa idea ("Dio non gioca a dadi"), ma gli esperimenti gli hanno dato torto.
+#### Cosa succede se la misuriamo?
+La misura è l'atto di "fermare la moneta". La natura **deve** decidere. Non può restituirci "metà 0 e metà 1". Deve dire 0 oppure 1.
 
-Verifichiamolo! Eseguiamo il circuito 1024 volte e contiamo i risultati.
+Poiché siamo esattamente all'equatore (a metà strada tra i poli), la probabilità sarà perfettamente 50/50.
+
+Facciamo un esperimento reale (simulato): lanciamo questa "moneta quantistica" 1000 volte.
 """)
 
-nb.add_code("""# Aggiungiamo la misura al circuito
-qc_h.measure(0, 0)
+nb.add_code("""# Creiamo un circuito con misura
+qc_measure = QuantumCircuit(1, 1)
+qc_measure.h(0)
+qc_measure.measure(0, 0) # Misura il qubit 0 e salva il risultato nel bit 0
 
-# Eseguiamo la simulazione 1024 volte (shots)
-job = sim_counts.run(qc_h, shots=1024)
-result = job.result()
-counts = result.get_counts()
+# Eseguiamo 1000 volte
+job_sim = sim_counts.run(qc_measure, shots=1000)
+counts = job_sim.result().get_counts()
 
-# Disegniamo l'istogramma
 plot_histogram(counts)""")
 
-nb.add_markdown("""Dovresti vedere due barre quasi uguali. Circa il 50% delle volte è uscito 0, e il 50% delle volte è uscito 1.
+nb.add_markdown("""Guarda il grafico. Dovresti vedere circa 500 volte '0' e 500 volte '1'.
+Ogni volta che eseguiamo il codice, il risultato preciso cambierà leggermente (magari 490 vs 510), proprio come nel lancio di monete reali.
 
-Se avessimo misurato lo stato $|0\\rangle$ (senza porta H), avremmo ottenuto il 100% delle volte 0.
-La porta H crea l'incertezza fondamentale.
-
----
-### 🏆 Challenge #1: Crea lo stato "Meno"
-
-Abbiamo visto che $H$ applicato a $|0\\rangle$ crea lo stato $|+\\rangle$ (freccia su asse X positivo).
-Esiste anche lo stato $|-\\rangle$ (freccia su asse X negativo, "dietro" la sfera).
-
-Questo stato si ottiene applicando H allo stato $|1\\rangle$.
-
-**La tua missione:**
-1.  Crea un circuito con 1 qubit.
-2.  Porta il qubit nello stato $|1\\rangle$ (usa la porta che abbiamo visto prima!).
-3.  Applica la porta H.
-4.  Visualizza la sfera di Bloch per confermare che la freccia punti nella direzione opposta a $|+\\rangle$.
-""")
-
-nb.add_code("""# Scrivi qui il tuo codice per la Challenge #1
-qc_challenge1 = QuantumCircuit(1)
-
-# ... aggiungi le porte ...
-
-# job = sim_statevector.run(qc_challenge1)
-# plot_bloch_multivector(job.result().get_statevector())
-""")
-
-# --- Parte 2: Fase e Interferenza ---
-
-nb.add_markdown("""---
-## 4. Rotazioni e Fase: Le porte Z, S, T, Y
-
-Oltre a ribaltare (X) e creare sovrapposizione (H), possiamo ruotare il qubit attorno ad altri assi.
-
-*   **Porta Z**: Ruota di 180 gradi attorno all'asse Z (l'asse verticale).
-    *   Se siamo in $|0\\rangle$, ruotare attorno a Z non cambia nulla (la freccia è già sull'asse Z!).
-    *   Ma se siamo in sovrapposizione (sull'equatore, come $|+\\rangle$), la porta Z ci sposta a $|-\\rangle$.
-    *   Questo cambio si chiama **Fase**. Non cambia la probabilità di misurare 0 o 1 (che dipende dall'altezza sulla sfera), ma cambia la "direzione" interna del qubit.
-
-*   **Porta Y**: Ruota attorno all'asse Y.
-*   **Porta S**: Ruota di 90 gradi attorno a Z (metà di una Z).
-*   **Porta T**: Ruota di 45 gradi attorno a Z (metà di una S).
-
-Le porte S e T sono cruciali per algoritmi complessi, ma oggi ci concentreremo sulla Z per vedere un fenomeno incredibile: l'interferenza.
+**Concetto Chiave:** Il determinismo è morto. A livello fondamentale, l'universo è probabilistico.
 
 ---
-## 5. L'Interferenza Quantistica: Quando le probabilità si cancellano
+## 4. Navigare l'Equatore: Le Porte Z, S e T
 
-Abbiamo detto che la porta H crea casualità (50/50).
-Quindi, se applico H due volte di fila ($H \\rightarrow H$), cosa mi aspetto?
-1.  Parto da 0.
-2.  Prima H $\\rightarrow$ Random.
-3.  Seconda H $\\rightarrow$ Ancora più Random?
+Siamo all'equatore (stato $|+\\rangle$). Possiamo muoverci lungo l'equatore senza tornare ai poli?
+Sì! Possiamo ruotare attorno all'asse Z (l'asse verticale che passa per i poli).
 
-La logica classica direbbe: se lancio una moneta e poi la rilancio, il risultato è sempre casuale.
-La logica quantistica dice: **NO!**
+Queste rotazioni cambiano la **Fase** del Qubit.
+Immagina la fase come la direzione in cui guarda la freccia mentre sta sull'equatore.
 
-Proviamo: $H \\rightarrow Z \\rightarrow H$.
+*   **Porta Z**: Rotazione di 180° attorno a Z. Porta dal fronte ($|+\\rangle$) al retro ($|-\\rangle$).
+*   **Porta S**: Rotazione di 90° attorno a Z.
+*   **Porta T**: Rotazione di 45° attorno a Z.
+
+Proviamo a fare una "passeggiata" sull'equatore.
+Partiremo da $|+\\rangle$ (dopo una H) e applicheremo una T, poi una S.
+""")
+
+nb.add_code("""qc_rot = QuantumCircuit(1)
+qc_rot.h(0) # Andiamo all'equatore (Asse X)
+
+# Visualizziamo dove siamo ora
+print("Dopo H (Stato |+>):")
+display(plot_bloch_multivector(sim_statevector.run(qc_rot).result().get_statevector()))
+
+# Applichiamo T (45 gradi)
+qc_rot.t(0)
+print("Dopo T (Rotazione di 45°):")
+display(plot_bloch_multivector(sim_statevector.run(qc_rot).result().get_statevector()))
+
+# Applichiamo S (90 gradi)
+qc_rot.s(0)
+print("Dopo S (Ulteriore rotazione di 90°):")
+display(plot_bloch_multivector(sim_statevector.run(qc_rot).result().get_statevector()))""")
+
+nb.add_markdown("""Vedi come la freccia si sposta lungo la "cintura" della sfera?
+Nota bene: l'altezza non è cambiata. Siamo sempre all'equatore.
+Se misurassimo ORA, avremmo ancora 50% probabilità di 0 e 50% di 1.
+La **Fase** non cambia le probabilità di misura (Z), ma è FONDAMENTALE per l'interferenza.
+
+---
+## 5. L'Interferenza: La matematica non è un'opinione (o forse sì?)
+
+Ora facciamo l'esperimento più importante. Segui bene i passaggi.
+
+1.  Prendiamo un qubit a 0.
+2.  Applichiamo **H**. (Ora è 50/50).
+3.  Applichiamo **Z**. (Ruotiamo la fase di 180°. Siamo ancora all'equatore, quindi se misurassimo ora sarebbe ancora 50/50).
+4.  Applichiamo **H** di nuovo.
+
+❓ **DOMANDA PER LO STUDENTE:**
+Classicamente, se mescolo le carte (H), poi le giro (Z), e poi le rimescolo (H), dovrei avere ancora disordine, giusto?
+Dovrebbe uscire ancora 50% e 50%.
+
+Verifichiamo se l'intuizione è corretta.
 """)
 
 nb.add_code("""qc_interf = QuantumCircuit(1, 1)
-
-# Passo 1: Creiamo sovrapposizione
 qc_interf.h(0)
-
-# Passo 2: Applichiamo Z (cambiamo la fase)
 qc_interf.z(0)
-
-# Passo 3: Riapplichiamo H
 qc_interf.h(0)
 
+# Disegniamo per essere sicuri
 qc_interf.draw('mpl')""")
 
-nb.add_markdown("""Ora misuriamo. Secondo l'intuizione classica, dovremmo avere un miscuglio casuale.
-Vediamo cosa succede.""")
+nb.add_markdown("""Ora misuriamo 1000 volte.""")
 
 nb.add_code("""qc_interf.measure(0, 0)
-
-job = sim_counts.run(qc_interf, shots=1024)
-plot_histogram(job.result().get_counts())""")
-
-nb.add_markdown("""Sorpresa! Otteniamo **100% risultato 1** (o quasi, a parte piccoli errori di simulazione). È tornato deterministico!
-
-**Cosa è successo?**
-Le "onde" di probabilità si sono combinate.
-1.  La prima H crea due onde: una per lo 0 e una per l'1.
-2.  La Z inverte la fase dell'onda dell'1 (la capovolge).
-3.  La seconda H fa scontrare queste onde.
-    *   Per lo stato 0, le onde si sono cancellate (**interferenza distruttiva**).
-    *   Per lo stato 1, le onde si sono sommate (**interferenza costruttiva**).
-
-È esattamente come nelle cuffie a cancellazione di rumore: suono + suono opposto = silenzio.
-Qui: probabilità + probabilità opposta = impossibilità.
-
-Questo è il segreto della velocità dei computer quantistici: manipolano le fasi per cancellare le risposte sbagliate e amplificare quella giusta!
-
----
-## 6. Multi-Qubit e Entanglement: "Azione Spettrale a Distanza" 👻
-
-Finora abbiamo giocato con un solo qubit. Ora usiamone due.
-Il nostro nuovo circuito avrà 2 linee orizzontali.
-
-### La Porta CNOT (Controlled-NOT)
-Questa è una porta condizionale (come un IF).
-*   Il primo qubit è il **Controllo**.
-*   Il secondo qubit è il **Target**.
-
-Se il Controllo è 0, al Target non succede nulla.
-Se il Controllo è 1, al Target viene applicata una X (si inverte).
-
-Vediamo la "Tabella di Verità":
-*   $|00\\rangle \\rightarrow |00\\rangle$
-*   $|01\\rangle \\rightarrow |01\\rangle$
-*   $|10\\rangle \\rightarrow |11\\rangle$ (Il controllo è 1, quindi il target 0 diventa 1)
-*   $|11\\rangle \\rightarrow |10\\rangle$ (Il controllo è 1, quindi il target 1 diventa 0)
-
-Ma cosa succede se il qubit di controllo è in **sovrapposizione**?
-Se il controllo è "un po' 0 e un po' 1", allora il target diventa "un po' non girato e un po' girato".
-
-Si crea l'**Entanglement** (Intreccio).
-I due qubit smettono di essere due oggetti separati e diventano un unico oggetto indissolubile.
-
-Creiamo lo **Stato di Bell**, lo stato più entangled possibile.
-""")
-
-nb.add_code("""qc_bell = QuantumCircuit(2, 2)
-
-# 1. Mettiamo il primo qubit in sovrapposizione con H
-qc_bell.h(0)
-
-# 2. Applichiamo la CNOT con q0 come controllo e q1 come target
-qc_bell.cx(0, 1)
-
-qc_bell.draw('mpl')""")
-
-nb.add_markdown("""Ora, ragioniamo.
-*   Dopo la H, q0 è 50% $|0\\rangle$ e 50% $|1\\rangle$. q1 è ancora $|0\\rangle$.
-*   La CNOT agisce.
-    *   Nella realtà in cui q0 è 0, q1 resta 0. -> Stato $|00\\rangle$.
-    *   Nella realtà in cui q0 è 1, q1 diventa 1. -> Stato $|11\\rangle$.
-
-Il sistema è ora una sovrapposizione di $|00\\rangle$ e $|11\\rangle$.
-Non esiste $|01\\rangle$ e non esiste $|10\\rangle$.
-O sono entrambi 0, o sono entrambi 1.
-
-Misuriamoli!
-""")
-
-nb.add_code("""qc_bell.measure([0,1], [0,1])
-
-job = sim_counts.run(qc_bell, shots=1024)
-counts = job.result().get_counts()
+counts = sim_counts.run(qc_interf, shots=1000).result().get_counts()
 plot_histogram(counts)""")
 
-nb.add_markdown("""Dovresti vedere due barre alte per 00 e 11. (Quasi) zero per 01 e 10.
+nb.add_markdown("""🤯 **WOW!**
+Il risultato è **100% '1'**. (O quasi, escludendo errori di simulazione).
+Il caso è sparito. La certezza è tornata.
 
-Se misuro il primo qubit e trovo 0, so **istantaneamente** che anche l'altro è 0. Anche se l'altro qubit fosse su Marte!
-Einstein chiamava questo fenomeno "Spooky action at a distance" (Azione spettrale a distanza). Non c'è scambio di informazioni (non possiamo mandare messaggi più veloci della luce), ma le correlazioni sono più forti di qualsiasi cosa possibile nel mondo classico.
+**Spiegazione Intuitiva:**
+Le porte quantistiche manipolano le onde di probabilità.
+*   La prima H crea due onde (onda-0 e onda-1).
+*   La Z inverte la cresta dell'onda-1 (la fa diventare una valle).
+*   La seconda H fa scontrare le onde.
+    *   Verso lo 0: Onda e Valle si cancellano (**Interferenza Distruttiva**). Risultato: 0% probabilità.
+    *   Verso l'1: Valle e Valle si sommano e si invertono. Risultato: 100% probabilità.
+
+Questo è il cuore degli algoritmi quantistici: creare interferenza distruttiva su tutte le risposte sbagliate affinché rimanga solo quella giusta!
 
 ---
-### La Porta Toffoli (CCNOT)
-Giusto per completezza, esiste anche la "nonna" della CNOT: la Toffoli.
-Ha **due** controlli e un target.
-Il target si inverte se e solo se **entrambi** i controlli sono 1.
-È l'equivalente quantistico della porta classica **AND**.
+## 6. Entanglement: Connessioni Spettrali
+
+Finora abbiamo usato 1 qubit. La vera potenza esplode con 2 o più qubit.
+Introduciamo la porta **CNOT (Controlled-NOT)**.
+
+È una porta "SE":
+*   SE il primo qubit (Control) è 1 $\\rightarrow$ Gira il secondo qubit (Target) con una X.
+*   SE il primo qubit è 0 $\\rightarrow$ Non fare nulla.
+
+### Esperimento A: Qubit Indipendenti
+Mettiamo il primo qubit in sovrapposizione (H) e lasciamo il secondo a 0.
+Non li colleghiamo.
 """)
 
-nb.add_code("""qc_toff = QuantumCircuit(3)
-qc_toff.ccx(0, 1, 2) # q0, q1 controlli, q2 target
-qc_toff.draw('mpl')""")
+nb.add_code("""qc_indep = QuantumCircuit(2, 2)
+qc_indep.h(0)       # Qubit 0 in sovrapposizione
+# Nessuna CNOT qui
+qc_indep.measure([0,1], [0,1])
+
+counts = sim_counts.run(qc_indep, shots=1000).result().get_counts()
+plot_histogram(counts)""")
+
+nb.add_markdown("""Osserva i risultati: abbiamo circa 50% di `00` e 50% di `01`.
+Il primo bit (a destra nella notazione standard qiskit) varia casualmente. Il secondo bit (a sinistra) è sempre 0.
+Sono indipendenti.
+
+### Esperimento B: Lo Stato di Bell (Entanglement)
+Ora usiamo la CNOT.
+Il Controllo è il qubit 0, che è in sovrapposizione (50% 0, 50% 1).
+Quindi la CNOT scatta "al 50%".
+""")
+
+nb.add_code("""qc_ent = QuantumCircuit(2, 2)
+qc_ent.h(0)      # Superposition
+qc_ent.cx(0, 1)  # Entanglement! Se q0 è 1, gira q1.
+
+qc_ent.draw('mpl')""")
+
+nb.add_markdown("""❓ **PREVISIONE:**
+Quali stati vedremo?
+*   Se q0 era 0, la CNOT non fa nulla -> q1 resta 0. Stato finale: **00**.
+*   Se q0 era 1, la CNOT inverte q1 -> q1 diventa 1. Stato finale: **11**.
+
+Esisteranno gli stati misti (01 o 10)?
+""")
+
+nb.add_code("""qc_ent.measure([0,1], [0,1])
+counts = sim_counts.run(qc_ent, shots=1000).result().get_counts()
+plot_histogram(counts)""")
+
+nb.add_markdown("""Esattamente! Vediamo solo **00** e **11**.
+Le barre centrali (01 e 10) sono vuote.
+
+**Cosa significa?**
+Significa che i due qubit si sono "messi d'accordo".
+Non importa quanto siano distanti: se misuro il primo e trovo 0, so **istantaneamente** che anche il secondo è 0.
+
+Questa correlazione è più forte di qualsiasi legame classico. Einstein la chiamava "spooky action at a distance" (azione spettrale a distanza) perché sembrava violare la logica che le informazioni viaggiano al massimo alla velocità della luce. (Spoiler: non viola la relatività, perché non possiamo usare questo trucco per mandare messaggi istantanei, ma la correlazione è reale!).
+
+---
+### 🏆 Challenge Finale: Il Teletrasporto (Simulato)
+
+Ok, non faremo un vero teletrasporto oggi (è un po' lungo), ma faremo un puzzle di entanglement.
+
+**Obiettivo:** Crea un circuito che generi SOLO gli stati **01** e **10**.
+(Ovvero: i due qubit devono essere sempre opposti).
+
+**Indizi:**
+1.  Parti dallo stato di Bell che abbiamo appena fatto (H + CNOT), che ti dà 00 e 11.
+2.  Come trasformi un 00 in 01? E un 11 in 10?
+3.  Ti serve una porta che inverte (X) applicata a UNO solo dei qubit, DOPO l'entanglement (o prima, se sei furbo).
+
+Scrivi il codice qui sotto!
+""")
+
+nb.add_code("""# --- SPAZIO PER LA TUA SOLUZIONE ---
+qc_challenge = QuantumCircuit(2, 2)
+
+# 1. Crea Entanglement standard
+qc_challenge.h(0)
+qc_challenge.cx(0, 1)
+
+# 2. Aggiungi la porta magica per invertire uno dei due
+# ... scrivi qui ... (Suggerimento: qc_challenge.x(1) ?)
+
+# 3. Misura
+qc_challenge.measure([0,1], [0,1])
+
+# Verifica
+# counts = sim_counts.run(qc_challenge).result().get_counts()
+# plot_histogram(counts)""")
 
 nb.add_markdown("""---
-### 🏆 Challenge #2: L'enigma dell'Entanglement
+## Conclusione
 
-Hai visto come creare lo stato che correla 00 e 11 (Stato di Bell $\\Phi^+$).
-La tua sfida è creare un circuito che produca sempre e solo gli stati **01** e **10**.
-Cioè: se il primo è 0, il secondo deve essere 1. Se il primo è 1, il secondo deve essere 0.
+Oggi hai visto che il mondo microscopico non segue le regole del nostro mondo quotidiano.
+*   Le cose possono essere in più stati contemporaneamente (**Sovrapposizione**).
+*   Le probabilità possono cancellarsi a vicenda (**Interferenza**).
+*   Oggetti separati possono comportarsi come un unico sistema (**Entanglement**).
 
-*Suggerimento:* Parti dallo stato di Bell che abbiamo appena fatto ($H$ su q0, $CX$ su q0,q1). Alla fine, quale porta devi aggiungere a uno dei due qubit per "invertire" il risultato? (Forse una X da qualche parte?)
-""")
+Questi sono i mattoni con cui costruiremo i computer del futuro, capaci di simulare molecole per nuovi farmaci, ottimizzare traffico e logistica, e rompere i codici crittografici attuali.
 
-nb.add_code("""# Scrivi qui il tuo codice per la Challenge #2
-qc_challenge2 = QuantumCircuit(2, 2)
-
-# ... il tuo codice ...
-
-# qc_challenge2.measure([0,1], [0,1])
-# plot_histogram(sim_counts.run(qc_challenge2).result().get_counts())
-""")
-
-nb.add_markdown("""---
-## Conclusione: Il futuro è qui
-
-Hai appena toccato con mano i tre pilastri del Quantum Computing:
-1.  **Sovrapposizione**: Essere in più stati contemporaneamente (grazie ad H).
-2.  **Interferenza**: Usare le onde di probabilità per cancellare i risultati errati.
-3.  **Entanglement**: Legare il destino di più qubit indissolubilmente.
-
-Le porte quantistiche non sono magiche, sono fisica. Ma permettono di fare calcoli che per un computer classico richiederebbero milioni di anni.
-
-Continua a sperimentare! Prova a combinare le porte in modi nuovi e guarda cosa succede alla sfera di Bloch.
-Buon divertimento quantistico! ⚛️
+Continua a esplorare! Prova a cambiare le rotazioni, aggiungi più qubit, rompi le cose. È il modo migliore per imparare. 🚀
 """)
 
 nb.save("Lezione_Porte_Quantistiche.ipynb")
