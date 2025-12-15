@@ -53,17 +53,19 @@ nb = NotebookGenerator()
 
 # --- INTRODUZIONE ---
 
-nb.add_markdown(r"""# 🌌 Viaggio al Centro del Qubit: Risolvere Problemi Logici
+nb.add_markdown(r"""# 🌌 Viaggio al Centro del Qubit: Corso Completo
 
-Benvenuto nella versione completa del laboratorio!
-Oggi useremo tutto ciò che abbiamo imparato (sovrapposizione, porte logiche) per risolvere un vero problema di logica booleana.
+Benvenuto! Questo è il laboratorio definitivo dove esploreremo l'informatica quantistica da zero fino agli algoritmi di ricerca avanzati.
+Non useremo matematica complessa, ma ci affideremo all'intuizione visiva e agli esperimenti pratici.
 
-**Il nostro percorso:**
-1.  **I Fondamentali**: Qubit, Sfera di Bloch e Porte Base.
-2.  **La Danza delle Fasi**: Ruotare senza cambiare bit.
-3.  **Il Parco Giochi**: SWAP e Toffoli.
-4.  **L'Algoritmo di Deutsch**: Scoprire le funzioni segrete.
-5.  **SAT Solver Quantistico**: Trovare la soluzione a una formula logica complessa.
+**Il Programma del Corso:**
+1.  **I Fondamentali**: Qubit, Sfera di Bloch e Porte Base (X, H).
+2.  **La Danza delle Fasi**: Ruotare senza cambiare bit (Z, S, T).
+3.  **L'Interferenza**: Cancellare le probabilità sbagliate.
+4.  **Il Parco Giochi**: Porte a più Qubit (SWAP, Toffoli).
+5.  **L'Algoritmo di Deutsch**: Scoprire le funzioni segrete.
+6.  **SAT Solver Quantistico**: Risolvere problemi di logica.
+7.  **L'Algoritmo di Grover**: Trovare un ago in un pagliaio.
 
 ---
 ### 🛠️ 0. Preparazione del Laboratorio
@@ -86,28 +88,28 @@ def visualize_circuit_and_state(qc, title="Stato del Qubit"):
     print(f"--- {title} ---")
     display(qc.draw('mpl'))
     try:
-        # Se ci sono troppi qubit, statevector potrebbe essere grande.
-        # Qui assumiamo pochi qubit per scopo didattico.
+        # Nota: Statevector funziona bene per pochi qubit.
         result = sim_statevector.run(qc).result()
         state = result.get_statevector()
         display(plot_bloch_multivector(state))
     except Exception as e:
-        print(f"Non posso visualizzare la sfera (forse c'è una misura intermedia?): {e}")
+        print(f"Non posso visualizzare la sfera (forse c'è una misura intermedia o troppi qubit?): {e}")
 
 print("✅ Laboratorio Quantistico Attivato!")""")
 
-# --- PARTE 1-4 ---
+# --- PARTE 1 ---
 
 nb.add_markdown(r"""---
 ## 1. Il Qubit e la Sfera di Bloch
 
-Ricordiamo brevemente:
+Dimentica gli 0 e gli 1 digitali. Pensa alla Terra.
 *   **Polo Nord ($|0\rangle$)**: Stato 0.
 *   **Polo Sud ($|1\rangle$)**: Stato 1.
-*   **Equatore**: Sovrapposizione ($|+\rangle$ o $|-\rangle$).
 
-Vediamo il nostro qubit appena nato.
+Un **Qubit** può essere un punto qualsiasi sulla superficie della Terra!
+Vediamo il nostro qubit appena nato (Polo Nord).
 """)
+
 nb.add_code("""qc = QuantumCircuit(1)
 visualize_circuit_and_state(qc, "Qubit Iniziale (|0>)")""")
 
@@ -124,17 +126,19 @@ visualize_circuit_and_state(qc, "Dopo Porta X (Not)")""")
 
 nb.add_markdown(r"""### La Porta H (La Sovrapposizione)
 Resettiamo il qubit a 0 e applichiamo H.
-La porta H ci porta all'equatore.
+La porta H ci porta all'**Equatore** della sfera.
+
+La freccia punta verso di noi (asse X positivo). Questo è lo stato $|+\rangle$.
+Se misurassimo ora, avremmo 50% di probabilità per 0 e 50% per 1.
 """)
 
 nb.add_code("""qc_h = QuantumCircuit(1)
 qc_h.h(0)
 visualize_circuit_and_state(qc_h, "Dopo Porta H (Sovrapposizione)")""")
 
-nb.add_markdown(r"""La freccia punta verso di noi (asse X positivo). Questo è lo stato $|+\rangle$.
-Se misurassimo ora, avremmo 50% di probabilità per 0 e 50% per 1.
+# --- PARTE 2: FASI ---
 
----
+nb.add_markdown(r"""---
 ## 3. Navigare le Fasi: Z, S, T
 
 Ora che siamo all'equatore, possiamo muoverci lungo la circonferenza senza cambiare latitudine.
@@ -164,8 +168,11 @@ visualize_circuit_and_state(qc_phase, "Passo 3: Aggiunta fase S (+90° = 135° t
 
 nb.add_markdown(r"""Nota che la freccia è ancora all'equatore. La probabilità di misurare 0 o 1 è INVARIATA (50/50).
 Ma lo stato interno è diverso. E questo sarà cruciale tra poco.
+""")
 
----
+# --- PARTE 3: INTERFERENZA ---
+
+nb.add_markdown(r"""---
 ## 4. L'Interferenza: $H \rightarrow Z \rightarrow H$
 
 Ripetiamo l'esperimento chiave.
@@ -194,11 +201,12 @@ visualize_circuit_and_state(qc_int, "Dopo seconda H (Tornati deterministici!)")"
 
 nb.add_markdown(r"""**Risultato:** La freccia punta al Sud ($|1\rangle$).
 Abbiamo trasformato un ingresso 0 in un'uscita 1 con certezza assoluta, passando per il caos della sovrapposizione.
+""")
 
----
+# --- PARTE 4: MULTI QUBIT ---
+
+nb.add_markdown(r"""---
 ## 5. Il Parco Giochi: Più Qubit, Più Divertimento
-
-Prima di affrontare l'algoritmo finale, giochiamo con porte a più qubit.
 
 ### La Porta SWAP
 Fa esattamente quello che dice: scambia due qubit.
@@ -207,13 +215,11 @@ Mettiamo q0 a 1 e q1 a 0. Dopo lo SWAP, dovrebbero invertirsi.
 
 nb.add_code("""qc_swap = QuantumCircuit(2)
 
-# Prepariamo lo stato iniziale |10> (q0=0, q1=1 attenzione qiskit usa l'ordine inverso nei ket ma visualmente q0 è q0)
 # Mettiamo q0 a 1 (Sud) e q1 a 0 (Nord)
 qc_swap.x(0)
 
 print("--- PRIMA DELLO SWAP ---")
 display(qc_swap.draw('mpl'))
-# Nota: plot_bloch mostra q0 a sinistra e q1 a destra solitamente, o indicizzati
 display(plot_bloch_multivector(sim_statevector.run(qc_swap).result().get_statevector()))
 
 # Applichiamo SWAP
@@ -223,15 +229,10 @@ print("--- DOPO LO SWAP ---")
 display(qc_swap.draw('mpl'))
 display(plot_bloch_multivector(sim_statevector.run(qc_swap).result().get_statevector()))""")
 
-nb.add_markdown(r"""Vedi? Le frecce si sono scambiate di posto!
-
-### La Porta Toffoli (CCNOT)
+nb.add_markdown(r"""### La Porta Toffoli (CCNOT)
 È una CNOT con DUE controlli.
 Il target cambia SOLO se entrambi i controlli sono 1.
 È l'equivalente quantistico della porta **AND**.
-
-Proviamo ad attivarla.
-Imposteremo Control1=1, Control2=1. Il Target (inizialmente 0) dovrebbe diventare 1.
 """)
 
 nb.add_code("""qc_toff = QuantumCircuit(3)
@@ -252,33 +253,19 @@ print("--- OUTPUT: Toffoli Attivata! ---")
 display(qc_toff.draw('mpl'))
 display(plot_bloch_multivector(sim_statevector.run(qc_toff).result().get_statevector()))""")
 
-nb.add_markdown(r"""Osserva la terza sfera (q2). Si è girata a Sud!
-Prova a cambiare uno dei controlli iniziali (togliendo una X) e vedrai che q2 non girerà più.
+# --- PARTE 5: DEUTSCH ---
 
----
+nb.add_markdown(r"""---
 ## 6. L'Algoritmo di Deutsch: La Scatola Nera ⬛
 
-Ed eccoci alla sfida finale.
 Immagina di avere una funzione segreta (una "scatola nera" o **Oracolo**) che prende 1 bit e restituisce 1 bit.
-$f(x) \rightarrow y$
+Ci sono solo due tipi di funzioni: **Costanti** (output sempre uguale) o **Bilanciate** (0 metà delle volte, 1 l'altra metà).
 
-Ci sono solo 4 possibili funzioni, divise in due tipi:
-1.  **Costanti**: Restituiscono sempre 0 o sempre 1. (L'output non dipende dall'input).
-2.  **Bilanciate**: Restituiscono 0 metà delle volte e 1 l'altra metà. (Es. Identità: $f(0)=0, f(1)=1$).
-
-**Il Problema Classico:**
-Per sapere se la scatola è Costante o Bilanciata, devi interrogarla **due volte**: una con 0 e una con 1.
-
-**La Soluzione Quantistica:**
-L'algoritmo di Deutsch può scoprirlo con **UNA SOLA** interrogazione.
-
-Come? Sfruttando il **Phase Kickback** (Ritorno di Fase).
-Invece di leggere il risultato dell'oracolo, usiamo l'interferenza per leggere *come l'oracolo cambia la fase del qubit*.
+**Il Problema:** Scoprire se la scatola è Costante o Bilanciata con UNA SOLA domanda.
+**La Soluzione:** Usiamo il **Phase Kickback**.
 
 ### Passo 1: Preparazione
-Prepariamo due qubit:
-*   Qubit Input (q0): $|0\rangle$
-*   Qubit Ancilla (q1): $|1\rangle$
+Prepariamo due qubit: q0 (Input) e q1 (Ancilla).
 """)
 
 nb.add_code("""qc_deutsch = QuantumCircuit(2, 1) # 2 qubit, 1 bit classico per la misura finale
@@ -300,180 +287,143 @@ qc_deutsch.h(1)
 visualize_circuit_and_state(qc_deutsch, "2. Sovrapposizione (Input |+>, Ancilla |->)")""")
 
 nb.add_markdown(r"""### Passo 3: L'Oracolo (La Scatola Nera)
-Ora applichiamo la scatola nera.
 Simuliamo una funzione **Bilanciata** usando una **CNOT**.
-(Perché CNOT è bilanciata? Se input è 0, output non cambia. Se input è 1, output cambia. Quindi l'output dipende dall'input).
-
-**Attenzione al trucco:**
-Normalmente la CNOT cambia il Target.
-MA... se il Target è nell'autostato $|-\rangle$ (come la nostra ancilla), la CNOT lascia il target invariato e **CAMBIA LA FASE DEL CONTROLLO**.
-Questo è il **Phase Kickback**.
-
-Osserva q0 (la prima sfera) dopo questo passaggio.
+La CNOT lascia il target invariato ma **CAMBIA LA FASE DEL CONTROLLO** perché il target è $|-\rangle$.
 """)
 
-nb.add_code("""qc_deutsch.cx(0, 1) # Questo è il nostro Oracolo Bilanciato
+nb.add_code("""qc_deutsch.cx(0, 1) # Oracolo Bilanciato
 
 visualize_circuit_and_state(qc_deutsch, "3. Dopo l'Oracolo (Osserva q0!)")""")
 
-nb.add_markdown(r"""**Hai visto?**
-*   L'ancilla (q1) è rimasta uguale ($|-\rangle$).
-*   L'input (q0) si è girato! È passato da $|+\rangle$ (fronte) a $|-\rangle$ (retro).
+nb.add_markdown(r"""**Hai visto?** L'input (q0) si è girato da $|+\rangle$ a $|-\rangle$.
+L'informazione è stata codificata nella fase!
 
-L'informazione "la funzione è bilanciata" è stata codificata nella fase di q0.
-
-### Passo 4: Interferenza Finale
-Ora dobbiamo leggere questa fase. Come distinguere $|+\rangle$ da $|-\rangle$?
-Con una porta H!
-*   $H |+\rangle = |0\rangle$
-*   $H |-\rangle = |1\rangle$
+### Passo 4: Interferenza Finale e Misura
+Per leggere la fase, usiamo H.
 """)
 
 nb.add_code("""qc_deutsch.h(0)
+qc_deutsch.measure(0, 0)
 
-visualize_circuit_and_state(qc_deutsch, "4. Interferenza Finale")""")
-
-nb.add_markdown(r"""### Passo 5: Misura
-Il qubit q0 è ora perfettamente allo stato $|1\rangle$.
-Se fosse stata una funzione costante, sarebbe finito allo stato $|0\rangle$.
-
-Misuriamo per confermare.
-""")
-
-nb.add_code("""qc_deutsch.measure(0, 0)
+visualize_circuit_and_state(qc_deutsch, "4. Interferenza Finale")
 
 job = sim_counts.run(qc_deutsch, shots=1000)
 plot_histogram(job.result().get_counts())""")
 
 nb.add_markdown(r"""**Risultato 1 (100%)** $\rightarrow$ **Bilanciata**.
-Abbiamo scoperto la natura della funzione con una sola passata attraverso il circuito!
-
----
-## Conclusione
-
-Abbiamo percorso tanta strada.
-Dalle semplici rotazioni di una sfera, siamo arrivati a sfruttare l'interferenza delle fasi per risolvere problemi computazionali in modo più efficiente dei computer classici.
-
-L'algoritmo di Deutsch è semplice, ma contiene il seme di algoritmi più potenti come quello di Shor (per rompere la crittografia) o di Grover (per la ricerca nei database).
-
-Ora tocca a te.
-Torna indietro, cambia l'oracolo (togli la CNOT per fare una funzione Costante), e vedi se riesci a ottenere 0 come risultato finale!
-
-Buona sperimentazione! 🚀
+Abbiamo scoperto la natura della funzione con una sola passata!
 """)
 
-# --- PARTE 7: SAT Solver ---
+# --- PARTE 6: SAT SOLVER ---
 
 nb.add_markdown(r"""---
 ## 7. Risolvere un Problema Logico (SAT) 🧩
 
-Ecco la sfida che mi hai lanciato. Dobbiamo trovare la configurazione di due bit ($q_1, q_0$) che soddisfa questa formula:
+Troviamo la configurazione di due bit ($q_1, q_0$) che soddisfa:
 
 $$ \Phi(x) = (q_1 \lor q_0) \land (\neg q_0) $$
 
-Dove:
-*   $\lor$ significa **OR** (o l'uno o l'altro).
-*   $\land$ significa **AND** (tutti e due).
-*   $\neg$ significa **NOT** (il contrario).
-
-### Analisi Classica (Il "Penna e Carta")
-Prima di costruire il circuito, ragioniamo come Sherlock Holmes.
-La formula richiede che siano vere DUE cose contemporaneamente (c'è una AND in mezzo):
-1.  $(q_1 \lor q_0)$ deve essere VERO.
-2.  $(\neg q_0)$ deve essere VERO.
-
-Analizziamo la parte 2: se $(\neg q_0)$ è vero, allora **$q_0$ deve essere 0**.
-Ora guardiamo la parte 1: se $q_0$ è 0, allora per rendere vero $(q_1 \lor 0)$, **$q_1$ deve essere 1**.
-
-Quindi la soluzione dovrebbe essere: **$q_1=1, q_0=0$**. (Stato $|10\rangle$).
-
-Ma noi vogliamo che sia il Computer Quantistico a trovarla!
+Analisi Logica Classica:
+*   $(\neg q_0)$ vero $\rightarrow q_0 = 0$.
+*   $(q_1 \lor 0)$ vero $\rightarrow q_1 = 1$.
+*   Soluzione attesa: **$q_1=1, q_0=0$**.
 
 ### Costruzione del Circuito Quantistico
-Per implementare questa logica in modo reversibile (regola d'oro quantistica), useremo 3 Qubit:
-*   $q_0$: Input 0
-*   $q_1$: Input 1
-*   $q_{out}$: Qubit di output dove scriveremo il risultato (1 se vero, 0 se falso).
+Implementiamo la logica semplificata: **$q_1$ AND (NOT $q_0$)**.
 
-#### Semplificazione Logica
-La formula è: $(q_1 \lor q_0) \land (\neg q_0)$.
-In logica, possiamo semplificarla.
-$(A \lor B) \land \neg B$ è equivalente a $A \land \neg B$.
-(Perché? Se $B$ è falso, $A \lor B$ è vero solo se $A$ è vero).
-
-Quindi dobbiamo implementare: **$q_1$ AND (NOT $q_0$)**.
-
-#### I Passaggi:
-1.  **Sovrapposizione**: Mettiamo $q_0$ e $q_1$ in stato $H$. Così il computer testerà TUTTE le combinazioni (00, 01, 10, 11) simultaneamente.
-2.  **Logica NOT**: Applichiamo una porta **X** su $q_0$. (Ora $q_0$ rappresenta $\neg q_0$).
-3.  **Logica AND**: Usiamo una porta **Toffoli (CCNOT)**.
-    *   Controllo 1: $q_1$
-    *   Controllo 2: $q_0$ (che ora è girato)
-    *   Target: $q_{out}$
-    *   Risultato: $q_{out}$ si gira se e solo se $q_1=1$ e $q_0(girato)=1$ (cioè $q_0(originale)=0$).
-4.  **Pulizia (Uncomputation)**: Riapplichiamo la **X** su $q_0$ per riportarlo al suo stato originale. È buona norma lasciare gli input come li abbiamo trovati.
-
-Proviamolo!
+1.  Input in Sovrapposizione ($H$).
+2.  X su $q_0$ (NOT).
+3.  Toffoli (AND) su un output qubit.
+4.  X su $q_0$ (Uncompute).
 """)
 
-nb.add_code("""# Creiamo il circuito con 3 qubit (2 input + 1 output) e 3 bit classici
-qc_sat = QuantumCircuit(3, 3)
-
-# 1. Inizializzazione: Mettiamo gli input in Sovrapposizione
+nb.add_code("""qc_sat = QuantumCircuit(3, 3)
 qc_sat.h(0) # q0
 qc_sat.h(1) # q1
-# q2 (output) lo lasciamo a 0
 
-visualize_circuit_and_state(qc_sat, "1. Input in Sovrapposizione (Testiamo tutto!)")
-
-# 2. Implementiamo NOT q0
+# Logica: q1 AND (NOT q0)
 qc_sat.x(0)
-# (Visualmente vedremo q0 ruotare)
-
-# 3. Implementiamo AND (Toffoli) tra q1 e il q0 negato, scrivendo su q2
-qc_sat.ccx(0, 1, 2)
-# Nota: qiskit usa l'ordine (control1, control2, target).
-# Qui controlliamo q0 (che ha la X) e q1. Target è q2.
-
-# 4. Pulizia: Togliamo il NOT su q0 per ripristinare la variabile
+qc_sat.ccx(0, 1, 2) # Scriviamo su q2
 qc_sat.x(0)
 
-visualize_circuit_and_state(qc_sat, "2. Dopo la Logica (Soluzione calcolata su q2)")
+qc_sat.measure([0,1,2], [0,1,2])
 
-# 5. Misura
-qc_sat.measure([0,1,2], [0,1,2]) # Misuriamo tutto
+visualize_circuit_and_state(qc_sat, "Circuito SAT Completo")
+
+job = sim_counts.run(qc_sat, shots=1024)
+plot_histogram(job.result().get_counts())""")
+
+nb.add_markdown(r"""Guarda l'istogramma.
+L'unica barra che inizia con 1 (es. `110`) è quella corrispondente a $q_1=1, q_0=0$.
+Abbiamo trovato la soluzione! Ma... solo con il 25% di probabilità (una scelta a caso).
 """)
 
-nb.add_markdown(r"""### Interpretazione dei Risultati
-Ora eseguiamo il circuito.
-Cosa ci aspettiamo?
-Poiché abbiamo testato tutte le combinazioni in parallelo, otterremo una distribuzione statistica.
-Dobbiamo cercare i casi in cui l'**Output (q2)** è **1**.
-Quello ci dirà quali input ($q_1, q_0$) hanno soddisfatto la formula.
+# --- PARTE 7: GROVER ---
 
-Nota su Qiskit: L'ordine dei bit nei grafici è $q_2, q_1, q_0$ (dal basso in alto, o sinistra destra nelle stringhe).
-Quindi cerchiamo stringhe che iniziano con 1 (es. `1xx`).
+nb.add_markdown(r"""---
+## 8. L'Algoritmo di Grover: L'Amplificatore 📢
+
+Come facciamo a trovare la soluzione al 100%?
+Usiamo l'Algoritmo di Grover.
+
+Ingredienti:
+1.  **Oracolo di Fase**: Invece di scrivere su un output, inverte la fase della soluzione. (Usiamo il SAT solver + Phase Kickback con ancilla $|-\rangle$).
+2.  **Diffusore**: Amplifica la differenza di fase.
+
+Costruiamo il circuito completo.
 """)
 
-nb.add_code("""job = sim_counts.run(qc_sat, shots=1024)
+nb.add_code("""# Circuito di Grover (2 qubit input + 1 ancilla)
+qc_grover = QuantumCircuit(3, 2) # Misureremo solo i 2 input
+
+# 1. Inizializzazione
+qc_grover.x(2)      # Ancilla a 1
+qc_grover.h(2)      # Ancilla a |-> (per il Phase Kickback)
+qc_grover.h([0,1])  # Input in Sovrapposizione completa
+
+visualize_circuit_and_state(qc_grover, "1. Inizializzazione")
+
+# 2. ORACLE (Il SAT Solver come Oracolo di Fase)
+# Logica: q1 AND (NOT q0) attiva il Phase Kickback
+qc_grover.x(0)         # NOT q0
+qc_grover.ccx(0, 1, 2) # Phase Kickback! Inverte il segno di |10>
+qc_grover.x(0)         # Uncompute NOT q0
+
+visualize_circuit_and_state(qc_grover, "2. Dopo l'Oracolo (Fase segnata)")
+
+# 3. DIFFUSORE (Amplificazione)
+# Standard per 2 qubit: H -> X -> CZ -> X -> H
+qc_grover.h([0,1])
+qc_grover.x([0,1])
+
+qc_grover.cp(np.pi, 0, 1) # Controlled-Z (inverte fase se 11)
+
+qc_grover.x([0,1])
+qc_grover.h([0,1])
+
+visualize_circuit_and_state(qc_grover, "3. Dopo il Diffusore (Amplificazione)")
+
+# 4. Misura
+qc_grover.measure([0,1], [0,1])
+
+job = sim_counts.run(qc_grover, shots=1024)
 counts = job.result().get_counts()
 plot_histogram(counts)""")
 
-nb.add_markdown(r"""### Analisi del Grafico
-Guarda le barre.
-Dovresti vedere 4 barre, ciascuna circa al 25% (perché abbiamo 4 combinazioni possibili in ingresso e nessuna interferenza che le cancelli).
+nb.add_markdown(r"""### Analisi Finale
+Guarda l'istogramma!
+La colonna **10** ($q_1=1, q_0=0$) dovrebbe essere dominante (vicina al 100%).
 
-Le combinazioni sono (leggendo da destra a sinistra q2, q1, q0):
-*   `000`: Input 00, Output 0 (Falso)
-*   `001`: Input 01, Output 0 (Falso)
-*   `011`: Input 11, Output 0 (Falso) -> Aspetta, q1=1, q0=1. Formula $(1 \lor 1) \land (\neg 1) = 1 \land 0 = 0$. Corretto.
-*   **`110`**: Input $q_1=1, q_0=0$. **Output (il primo bit a sinistra) è 1!**
+Abbiamo trasformato una probabilità del 25% in una certezza, usando l'interferenza costruttiva.
 
-**Vittoria!** 🎉
-L'unica barra che ha il bit più a sinistra a 1 è quella corrispondente a $q_1=1, q_0=0$.
-Abbiamo trovato la soluzione sfruttando il Parallelismo Quantistico.
+---
+## Conclusione
 
-(Nota: Se usassimo l'algoritmo di Grover, potremmo amplificare questa barra per farla diventare il 100% della probabilità, ma questa è una storia per la prossima lezione!)
+Congratulazioni! Hai completato il corso.
+Abbiamo visto che i computer quantistici non sono solo "più veloci", ma ragionano in modo diverso.
+Usano lo spazio delle fasi, la sovrapposizione e l'entanglement per manipolare l'informazione in modi che la fisica classica non permette.
+
+Continua a esplorare! 🚀
 """)
 
 nb.save("Lezione_Porte_Quantistiche.ipynb")
